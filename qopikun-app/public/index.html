@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#0f0e0d">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Qopikun">
+<title>Qopikun AI Co-Workers</title>
+<link rel="manifest" href="/manifest.json">
+<link rel="apple-touch-icon" href="/icons/icon-192.png">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600;700&family=DM+Mono:wght@400;500&family=DM+Serif+Display&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#0f0e0d;--paper:#f5f2ee;--cream:#ede9e3;
+  --bd:#c84b2f;--ad:#2f6ec8;--ac:#2a8c5e;--lg:#7c3aed;
+  --muted:#7a746e;--border:#d4cfc8;
+  --shadow:0 2px 12px rgba(15,14,13,.1);
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;overflow:hidden;font-family:'Sora',sans-serif;}
+body{background:var(--paper);color:var(--ink);display:flex;flex-direction:column;}
+
+/* ── LOGIN SCREEN ── */
+#login-screen{
+  position:fixed;inset:0;z-index:100;
+  background:var(--ink);display:flex;flex-direction:column;
+  align-items:center;justify-content:center;padding:32px 24px;
+}
+.login-logo{
+  width:64px;height:64px;background:var(--bd);border-radius:14px;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'DM Serif Display',serif;font-size:32px;color:#fff;
+  margin-bottom:24px;
+}
+.login-title{font-family:'DM Serif Display',serif;font-size:24px;color:#fff;margin-bottom:6px;}
+.login-sub{font-size:12px;color:#9a9490;margin-bottom:40px;letter-spacing:.05em;text-transform:uppercase;}
+.login-form{width:100%;max-width:340px;display:flex;flex-direction:column;gap:12px;}
+.login-form input{
+  padding:14px 16px;border-radius:10px;border:1px solid #2a2926;
+  background:#1a1917;color:#f5f2ee;font-family:'Sora',sans-serif;
+  font-size:16px;font-weight:300;outline:none;
+  transition:border .2s;
+}
+.login-form input:focus{border-color:#555;}
+.login-form input::placeholder{color:#555;}
+.login-btn{
+  padding:15px;border-radius:10px;border:none;
+  background:var(--bd);color:#fff;font-family:'Sora',sans-serif;
+  font-size:15px;font-weight:600;cursor:pointer;
+  transition:opacity .15s;margin-top:4px;
+}
+.login-btn:hover{opacity:.9;}
+.login-btn:disabled{opacity:.5;cursor:not-allowed;}
+.login-error{color:#f08070;font-size:13px;text-align:center;min-height:18px;}
+.login-footer{font-size:11px;color:#555;margin-top:24px;text-align:center;line-height:1.6;}
+
+/* ── MAIN APP ── */
+#app{display:flex;flex-direction:column;height:100%;display:none;}
+
+header{
+  height:54px;flex-shrink:0;background:var(--ink);color:var(--paper);
+  padding:0 14px;display:flex;align-items:center;gap:10px;
+  border-bottom:3px solid var(--bd);
+}
+.hlogo{width:30px;height:30px;background:var(--bd);border-radius:6px;display:flex;
+  align-items:center;justify-content:center;font-family:'DM Serif Display',serif;
+  font-size:16px;color:#fff;flex-shrink:0;}
+.htitle{font-family:'DM Serif Display',serif;font-size:16px;font-weight:400;}
+.huser{margin-left:auto;font-size:11px;color:#9a9490;flex-shrink:0;}
+.logout-btn{background:none;border:none;color:#555;cursor:pointer;font-size:18px;
+  padding:4px;margin-left:8px;flex-shrink:0;}
+
+/* ── TABS ── */
+.tabs{height:46px;flex-shrink:0;display:flex;background:var(--cream);
+  border-bottom:1px solid var(--border);overflow-x:auto;overflow-y:hidden;
+  -webkit-overflow-scrolling:touch;scrollbar-width:none;}
+.tabs::-webkit-scrollbar{display:none;}
+.tab{flex:1;min-width:72px;display:flex;flex-direction:column;align-items:center;
+  justify-content:center;gap:2px;cursor:pointer;border-bottom:3px solid transparent;
+  transition:all .2s;font-size:10px;font-weight:700;color:var(--muted);
+  white-space:nowrap;background:none;border-top:none;border-left:none;border-right:none;
+  font-family:'Sora',sans-serif;}
+.tab-icon{font-size:14px;line-height:1;}
+.tab:hover{color:var(--ink);}
+.tab.active[data-r="bd"]{border-bottom-color:var(--bd);color:var(--bd);background:#fff;}
+.tab.active[data-r="ad"]{border-bottom-color:var(--ad);color:var(--ad);background:#fff;}
+.tab.active[data-r="ac"]{border-bottom-color:var(--ac);color:var(--ac);background:#fff;}
+.tab.active[data-r="lg"]{border-bottom-color:var(--lg);color:var(--lg);background:#fff;}
+
+/* ── WORKSPACE ── */
+.ws{display:none;flex-direction:column;flex:1;overflow:hidden;}
+.ws.active{display:flex;}
+
+/* ── PERSONA BAR ── */
+.pbar{flex-shrink:0;padding:8px 14px;display:flex;align-items:center;gap:8px;
+  border-bottom:1px solid var(--border);background:#fff;}
+.pav{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;
+  justify-content:center;font-size:13px;flex-shrink:0;}
+.bd .pav{background:#fde8e3;} .ad .pav{background:#e3edfb;}
+.ac .pav{background:#e3f4ec;} .lg .pav{background:#ede9fb;}
+.pname{font-size:12px;font-weight:700;}
+.psub{font-size:10px;color:var(--muted);font-weight:300;}
+.sdot{width:7px;height:7px;border-radius:50%;background:#4caf50;
+  margin-left:auto;flex-shrink:0;box-shadow:0 0 0 2px rgba(76,175,80,.2);}
+.ebtn{font-size:11px;padding:5px 9px;border-radius:13px;border:1px solid var(--border);
+  background:var(--paper);cursor:pointer;font-family:'Sora',sans-serif;font-weight:600;
+  color:var(--muted);transition:all .15s;flex-shrink:0;}
+.ebtn:hover,.ebtn:active{background:#fff;border-color:#999;color:var(--ink);}
+
+/* ── EMAIL PANEL ── */
+.epanel{flex-shrink:0;background:#fff;border-bottom:1px solid var(--border);
+  padding:9px 14px;display:none;}
+.epanel.open{display:block;}
+.ept{font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;
+  color:var(--muted);margin-bottom:7px;}
+.epacts{display:flex;gap:5px;flex-wrap:wrap;}
+.ea{font-size:11px;padding:5px 10px;border-radius:15px;cursor:pointer;
+  border:1px solid var(--border);background:var(--paper);font-family:'Sora',sans-serif;
+  transition:all .13s;white-space:nowrap;color:var(--ink);}
+.ea:active{background:#fff;border-color:#999;}
+
+/* ── CHAT ── */
+.chat{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;
+  gap:11px;background:var(--paper);-webkit-overflow-scrolling:touch;}
+.msg{display:flex;gap:7px;align-items:flex-start;animation:si .2s ease;}
+@keyframes si{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+.msg.u{flex-direction:row-reverse;}
+.mav{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;
+  justify-content:center;font-size:9px;flex-shrink:0;font-weight:700;color:#fff;
+  background:var(--muted);}
+.msg.u .mav{background:var(--ink);}
+.mbub{max-width:83%;padding:10px 13px;border-radius:14px;font-size:13px;
+  line-height:1.65;font-weight:300;}
+.msg.u .mbub{background:var(--ink);color:var(--paper);border-bottom-right-radius:4px;}
+.msg.ai .mbub{background:#fff;border-bottom-left-radius:4px;box-shadow:var(--shadow);}
+.bd .msg.ai .mbub{border-left:3px solid var(--bd);}
+.ad .msg.ai .mbub{border-left:3px solid var(--ad);}
+.ac .msg.ai .mbub{border-left:3px solid var(--ac);}
+.lg .msg.ai .mbub{border-left:3px solid var(--lg);}
+.mtime{font-size:9px;color:var(--muted);margin-top:3px;font-family:'DM Mono',monospace;}
+
+/* ── QUICK PROMPTS ── */
+.qps{flex-shrink:0;padding:7px 14px;display:flex;gap:5px;flex-wrap:wrap;
+  background:#fff;border-top:1px solid var(--border);overflow-x:auto;}
+.ql{font-size:10px;color:var(--muted);width:100%;font-weight:700;
+  letter-spacing:.06em;text-transform:uppercase;}
+.qb{font-size:11px;padding:5px 10px;border-radius:17px;cursor:pointer;
+  border:1px solid var(--border);background:var(--paper);font-family:'Sora',sans-serif;
+  transition:all .13s;white-space:nowrap;color:var(--ink);}
+.qb:active{transform:scale(.97);}
+.bd .qb:active{color:var(--bd);border-color:var(--bd);}
+.ad .qb:active{color:var(--ad);border-color:var(--ad);}
+.ac .qb:active{color:var(--ac);border-color:var(--ac);}
+.lg .qb:active{color:var(--lg);border-color:var(--lg);}
+
+/* ── INPUT ── */
+.ibar{flex-shrink:0;padding:10px 14px;background:#fff;border-top:1px solid var(--border);
+  display:flex;gap:7px;align-items:flex-end;
+  padding-bottom:max(10px,env(safe-area-inset-bottom));}
+.ibar textarea{flex:1;resize:none;border:1px solid var(--border);border-radius:10px;
+  padding:9px 12px;font-family:'Sora',sans-serif;font-size:16px;font-weight:300;
+  line-height:1.5;min-height:40px;max-height:100px;
+  background:var(--paper);color:var(--ink);outline:none;transition:border .2s;}
+.bd .ibar textarea:focus{border-color:var(--bd);}
+.ad .ibar textarea:focus{border-color:var(--ad);}
+.ac .ibar textarea:focus{border-color:var(--ac);}
+.lg .ibar textarea:focus{border-color:var(--lg);}
+.sbtn{width:42px;height:42px;border-radius:10px;border:none;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;font-size:16px;
+  transition:all .15s;flex-shrink:0;color:#fff;}
+.bd .sbtn{background:var(--bd);} .ad .sbtn{background:var(--ad);}
+.ac .sbtn{background:var(--ac);} .lg .sbtn{background:var(--lg);}
+.sbtn:active{transform:scale(.95);}
+.sbtn:disabled{opacity:.35;cursor:not-allowed;}
+
+/* ── TYPING ── */
+.typing{display:flex;gap:4px;align-items:center;padding:7px 11px;}
+.typing span{width:5px;height:5px;border-radius:50%;background:var(--muted);
+  animation:bnc 1.2s infinite;}
+.typing span:nth-child(2){animation-delay:.2s}
+.typing span:nth-child(3){animation-delay:.4s}
+@keyframes bnc{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-5px)}}
+
+/* ── INSTALL BANNER ── */
+#install-banner{
+  display:none;position:fixed;bottom:0;left:0;right:0;z-index:50;
+  background:var(--ink);color:var(--paper);
+  padding:14px 20px 20px;border-top:2px solid var(--bd);
+  display:none;align-items:center;gap:12px;
+  padding-bottom:max(20px,env(safe-area-inset-bottom));
+}
+#install-banner.show{display:flex;}
+.install-text{flex:1;font-size:13px;line-height:1.4;}
+.install-text strong{display:block;font-size:14px;margin-bottom:2px;}
+.install-yes{padding:8px 16px;background:var(--bd);color:#fff;border:none;
+  border-radius:8px;font-family:'Sora',sans-serif;font-size:13px;
+  font-weight:600;cursor:pointer;flex-shrink:0;}
+.install-no{background:none;border:none;color:#555;cursor:pointer;
+  font-size:20px;padding:4px;flex-shrink:0;}
+
+.chat::-webkit-scrollbar{width:3px;}
+.chat::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
+
+@media(max-width:380px){
+  .pname,.psub{font-size:11px;}
+  .mbub{max-width:89%;font-size:12px;}
+}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login-screen">
+  <div class="login-logo">Q</div>
+  <div class="login-title">Qopikun AI Co-Workers</div>
+  <div class="login-sub">Sign in to continue</div>
+  <form class="login-form" onsubmit="doLogin(event)">
+    <input id="l-user" type="text" placeholder="Username" autocomplete="username" autocapitalize="none">
+    <input id="l-pass" type="password" placeholder="Password" autocomplete="current-password">
+    <div class="login-error" id="l-err"></div>
+    <button class="login-btn" id="l-btn" type="submit">Sign in</button>
+  </form>
+  <div class="login-footer">Qopikun Services LLP &amp; Qopikun Global Services Pvt Ltd<br>Powered by Claude AI</div>
+</div>
+
+<!-- MAIN APP -->
+<div id="app">
+  <header>
+    <div class="hlogo">Q</div>
+    <div class="htitle">Qopikun AI Co-Workers</div>
+    <div class="huser" id="h-user"></div>
+    <button class="logout-btn" onclick="doLogout()" title="Sign out">⏻</button>
+  </header>
+
+  <div class="tabs" id="tabs-bar"></div>
+  <div id="workspaces"></div>
+</div>
+
+<!-- INSTALL BANNER -->
+<div id="install-banner">
+  <div class="install-text">
+    <strong>Install as app</strong>
+    Add to your home screen for the full experience
+  </div>
+  <button class="install-yes" onclick="installApp()">Install</button>
+  <button class="install-no" onclick="dismissInstall()">✕</button>
+</div>
+
+<script>
+// ── AGENT CONFIG ──
+const AGENTS = {
+  bd: {
+    name:'Aarav', title:'BD Specialist',
+    sub:'Sales · Proposals · Outreach · Gmail',
+    icon:'🚀', av:'Aa',
+    emails:[
+      ['📬 Unread inbox',   'Show my unread emails and summarise them'],
+      ['🎯 Client leads',   'Find emails from potential clients or new leads in my inbox'],
+      ['📄 RFPs received',  'Find any RFPs or proposals received recently'],
+      ['📋 BD digest',      'Summarise my last 10 emails and flag BD opportunities'],
+      ['✍️ Follow-up draft','Draft a follow-up email to a recent prospect'],
+    ],
+    quick:[
+      ['Client emails',  'Check my inbox for unanswered client emails'],
+      ['Draft proposal', 'Draft a proposal for a new services engagement at Qopikun'],
+      ['Cold outreach',  'Write a cold outreach email to an enterprise client'],
+      ['Email digest',   'Summarise recent emails and flag BD opportunities'],
+    ],
+    intro:"Hi! I'm <strong>Aarav</strong>, your BD specialist. I have live Gmail access — I can check your inbox, find leads, draft replies, and craft proposals. Tap <strong>📧 Email</strong> or just ask me!"
+  },
+  ad: {
+    name:'Ishita', title:'Admin & PA',
+    sub:'Scheduling · Emails · Documents · Gmail',
+    icon:'🗂️', av:'I',
+    emails:[
+      ['📬 Unread summary',  'Show my unread emails and give me a clear summary of each one'],
+      ['🚨 Urgent emails',   'Find emails that need urgent action or reply today'],
+      ['📅 Meeting requests','Find any meeting requests or scheduling emails in my inbox'],
+      ['🔄 Reschedule',      'Draft a polite email to reschedule a meeting'],
+      ['📢 Team email',      'Write a professional internal announcement for the Qopikun team'],
+    ],
+    quick:[
+      ['Unread emails',  "What are my unread emails? Summarise them"],
+      ['Urgent emails',  'Find emails that need urgent reply today'],
+      ['Meeting agenda', 'Write an agenda for a weekly team meeting'],
+      ['Reschedule',     'Draft a professional email to reschedule a meeting'],
+    ],
+    intro:"Hello! I'm <strong>Ishita</strong>, your Admin & PA. I have live Gmail access — I can read your inbox, flag urgent emails, summarise threads, and draft replies. Tap <strong>📧 Email</strong> or tell me what to handle!"
+  },
+  ac: {
+    name:'Amit', title:'Accounts Specialist',
+    sub:'Finance · Invoicing · Compliance · Gmail',
+    icon:'📊', av:'Am',
+    emails:[
+      ['🧾 Invoice emails',   'Find any invoices or payment-related emails in my inbox'],
+      ['💰 Pending payments', 'Find emails about pending payments or dues from clients'],
+      ['📨 Payment reminder', 'Draft a payment reminder email to a client'],
+      ['📑 GST/Tax emails',   'Find any GST or tax-related emails received recently'],
+      ['📋 Finance digest',   'Summarise recent finance-related emails for my review'],
+    ],
+    quick:[
+      ['Invoice emails',   'Check inbox for any invoice or payment emails'],
+      ['Payment reminder', 'Draft a payment reminder email to a client'],
+      ['Monthly report',   'Help me structure a monthly financial summary report'],
+      ['GST compliance',   'Explain GST compliance requirements for Qopikun Services LLP'],
+    ],
+    intro:"Good day! I'm <strong>Amit</strong>, your Accounts specialist. With live Gmail access I can check invoices, payment threads, GST notices, and draft reminders. Tap <strong>📧 Email</strong> or ask me directly."
+  },
+  lg: {
+    name:'Raghav', title:'CA, LLB Associate Director',
+    sub:'Legal · Compliance · HR Law · Strategy · Gmail',
+    icon:'⚖️', av:'R',
+    emails:[
+      ['⚖️ Legal notices',    'Find any legal notices, compliance or regulatory emails in my inbox'],
+      ['🏛️ ROC/MCA emails',  'Find any ROC, MCA or government filing emails received'],
+      ['📝 Contracts',        'Find any contract or NDA related emails for review'],
+      ['✍️ Legal reply',      'Draft a legally precise reply to a compliance notice in my inbox'],
+      ['📋 Compliance digest','Summarise all compliance and legal emails from this week'],
+    ],
+    quick:[
+      ['Legal notices',    'Check inbox for any legal notices or compliance emails'],
+      ['Appointment letter','Draft an employment appointment letter for a new hire at Qopikun'],
+      ['ROC compliance',   'What are ROC compliance requirements for our LLP and Pvt Ltd?'],
+      ['Draft NDA',        'Draft a non-disclosure agreement for a Qopikun client engagement'],
+      ['IP strategy',      'Advise on IP protection strategy for Qopikun globally'],
+    ],
+    intro:"Good day! I'm <strong>Raghav</strong>, your CA, LLB Associate Director at Qopikun. With live Gmail access I monitor your inbox for legal notices, compliance emails, and contracts — and draft legally precise responses. Brief me on what needs addressing."
+  }
+};
+
+// ── STATE ──
+let token = localStorage.getItem('qop_token');
+let userName = localStorage.getItem('qop_name');
+let userRole = localStorage.getItem('qop_role');
+const histories = {bd:[],ad:[],ac:[],lg:[]};
+let deferredInstall = null;
+
+// ── INIT ──
+window.addEventListener('load', () => {
+  if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js');
+  if (token) showApp();
+});
+
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  deferredInstall = e;
+  if (!localStorage.getItem('install_dismissed')) {
+    setTimeout(() => document.getElementById('install-banner').classList.add('show'), 3000);
+  }
+});
+
+// ── LOGIN ──
+async function doLogin(e) {
+  e.preventDefault();
+  const btn = document.getElementById('l-btn');
+  const err = document.getElementById('l-err');
+  const username = document.getElementById('l-user').value.trim();
+  const password = document.getElementById('l-pass').value;
+  err.textContent = '';
+  btn.disabled = true; btn.textContent = 'Signing in…';
+  try {
+    const res = await fetch('/api/auth/login', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({username, password})
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Login failed');
+    token = data.token; userName = data.name; userRole = data.role;
+    localStorage.setItem('qop_token', token);
+    localStorage.setItem('qop_name', userName);
+    localStorage.setItem('qop_role', userRole);
+    showApp();
+  } catch(ex) {
+    err.textContent = ex.message;
+    btn.disabled = false; btn.textContent = 'Sign in';
+  }
+}
+
+function doLogout() {
+  localStorage.clear();
+  token = null; userName = null; userRole = null;
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('login-screen').style.display = 'flex';
+}
+
+// ── BUILD APP ──
+function showApp() {
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('app').style.display = 'flex';
+  document.getElementById('h-user').textContent = userName || '';
+
+  const roles = userRole === 'all'
+    ? ['bd','ad','ac','lg']
+    : [userRole].filter(r => AGENTS[r]);
+
+  buildTabs(roles);
+  buildWorkspaces(roles);
+  if (roles.length) switchTab(roles[0]);
+}
+
+function buildTabs(roles) {
+  const bar = document.getElementById('tabs-bar');
+  bar.innerHTML = '';
+  roles.forEach(r => {
+    const a = AGENTS[r];
+    const btn = document.createElement('button');
+    btn.className = 'tab'; btn.dataset.r = r;
+    btn.innerHTML = `<span class="tab-icon">${a.icon}</span>${a.name}`;
+    btn.onclick = () => switchTab(r);
+    bar.appendChild(btn);
+  });
+}
+
+function buildWorkspaces(roles) {
+  const cont = document.getElementById('workspaces');
+  cont.innerHTML = '';
+  cont.style.cssText = 'display:flex;flex-direction:column;flex:1;overflow:hidden;';
+
+  roles.forEach(r => {
+    const a = AGENTS[r];
+    const ws = document.createElement('div');
+    ws.className = `ws ${r}`; ws.id = `ws-${r}`;
+
+    ws.innerHTML = `
+      <div class="pbar">
+        <div class="pav">${a.icon}</div>
+        <div><div class="pname">${a.name} — ${a.title}</div><div class="psub">${a.sub}</div></div>
+        <button class="ebtn" onclick="tep('${r}')">📧 Email</button>
+        <div class="sdot"></div>
+      </div>
+      <div class="epanel" id="ep-${r}">
+        <div class="ept">📧 ${a.name}'s inbox actions</div>
+        <div class="epacts">${a.emails.map(([l,t])=>`<button class="ea" onclick="ea('${r}','${t.replace(/'/g,"\\'")}')"> ${l}</button>`).join('')}</div>
+      </div>
+      <div class="chat" id="chat-${r}">
+        <div class="msg ai">
+          <div class="mav">${a.av}</div>
+          <div><div class="mbub">${a.intro}</div><div class="mtime">${gt()}</div></div>
+        </div>
+      </div>
+      <div class="qps ${r}">
+        <div class="ql">Quick prompts</div>
+        ${a.quick.map(([l,t])=>`<button class="qb" onclick="qs('${r}','${t.replace(/'/g,"\\'")}')"> ${l}</button>`).join('')}
+      </div>
+      <div class="ibar ${r}">
+        <textarea id="in-${r}" placeholder="Ask ${a.name}…" rows="1"
+          onkeydown="hk(event,'${r}')" oninput="ar(this)"></textarea>
+        <button class="sbtn" id="sb-${r}" onclick="send('${r}')">➤</button>
+      </div>`;
+    cont.appendChild(ws);
+  });
+}
+
+// ── TAB SWITCHING ──
+function switchTab(r) {
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.ws').forEach(w=>w.classList.remove('active'));
+  const tab = document.querySelector(`.tab[data-r="${r}"]`);
+  if (tab) tab.classList.add('active');
+  const ws = document.getElementById(`ws-${r}`);
+  if (ws) ws.classList.add('active');
+  document.querySelectorAll('.epanel').forEach(p=>p.classList.remove('open'));
+}
+
+function tep(r){ document.getElementById(`ep-${r}`).classList.toggle('open'); }
+function ea(r,t){ document.getElementById(`ep-${r}`).classList.remove('open'); document.getElementById(`in-${r}`).value=t; send(r); }
+function ar(el){ el.style.height='auto'; el.style.height=Math.min(el.scrollHeight,100)+'px'; }
+function hk(e,r){ if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send(r);} }
+function qs(r,t){ document.getElementById(`in-${r}`).value=t; send(r); }
+function gt(){ return new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}); }
+
+function fmt(t){
+  return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>')
+    .replace(/\*(.*?)\*/g,'<em>$1</em>')
+    .replace(/`(.*?)`/g,'<code style="background:#f0ede8;padding:1px 4px;border-radius:3px;font-family:DM Mono,monospace;font-size:11px">$1</code>')
+    .replace(/\n/g,'<br>');
+}
+
+function addMsg(r,cls,html,av){
+  const c=document.getElementById(`chat-${r}`);
+  const d=document.createElement('div'); d.className=`msg ${cls}`;
+  d.innerHTML=`<div class="mav">${av}</div><div><div class="mbub">${html}</div><div class="mtime">${gt()}</div></div>`;
+  c.appendChild(d); c.scrollTop=c.scrollHeight;
+}
+
+function showTyping(r){
+  const a=AGENTS[r];
+  const c=document.getElementById(`chat-${r}`);
+  const d=document.createElement('div'); d.className='msg ai'; d.id=`ty-${r}`;
+  d.innerHTML=`<div class="mav">${a.av}</div><div><div class="mbub"><div class="typing"><span></span><span></span><span></span></div></div></div>`;
+  c.appendChild(d); c.scrollTop=c.scrollHeight;
+}
+function rmT(r){ const e=document.getElementById(`ty-${r}`); if(e)e.remove(); }
+
+// ── SEND MESSAGE ──
+async function send(r){
+  if (!token) { doLogout(); return; }
+  const inp=document.getElementById(`in-${r}`);
+  const btn=document.getElementById(`sb-${r}`);
+  const txt=inp.value.trim(); if(!txt)return;
+  inp.value=''; inp.style.height='auto'; btn.disabled=true;
+
+  addMsg(r,'u',fmt(txt),'You');
+  histories[r].push({role:'user',content:txt});
+  showTyping(r);
+
+  try {
+    const res = await fetch('/api/agent/chat', {
+      method:'POST',
+      headers:{
+        'Content-Type':'application/json',
+        'Authorization':`Bearer ${token}`
+      },
+      body: JSON.stringify({ role:r, messages:histories[r] })
+    });
+    if (res.status === 401) { doLogout(); return; }
+    const data = await res.json();
+    const reply = data.reply || data.error || 'Something went wrong. Please try again.';
+    rmT(r);
+    histories[r].push({role:'assistant',content:reply});
+    addMsg(r,'ai',fmt(reply),AGENTS[r].av);
+  } catch(e) {
+    rmT(r);
+    addMsg(r,'ai','⚠️ Connection issue. Please check your network.',AGENTS[r].av);
+  }
+  btn.disabled=false; inp.focus();
+}
+
+// ── PWA INSTALL ──
+function installApp(){
+  if (!deferredInstall) return;
+  deferredInstall.prompt();
+  deferredInstall.userChoice.then(()=>{ deferredInstall=null; dismissInstall(); });
+}
+function dismissInstall(){
+  document.getElementById('install-banner').classList.remove('show');
+  localStorage.setItem('install_dismissed','1');
+}
+</script>
+</body>
+</html>

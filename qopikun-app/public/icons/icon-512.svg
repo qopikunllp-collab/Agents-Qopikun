@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="92" fill="#0f0e0d"/>
+  <rect x="40.96" y="40.96" width="430.08" height="430.08" rx="88" fill="#c84b2f"/>
+  <text x="256" y="348.16" font-family="Georgia,serif" font-size="281.6" font-weight="bold"
+    fill="white" text-anchor="middle">Q</text>
+</svg>
