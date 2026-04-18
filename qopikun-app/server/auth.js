@@ -2,14 +2,14 @@ const express = require('express');
 const jwt = require('jsonwebtoken');
 const router = express.Router();
 
-// Team members - add/edit names, roles and passwords here
-// Roles: bd | admin | accounts | legal | all
+// Team members — add/remove/edit as needed
+// Roles: bd | ad | ac | lg | all
 const TEAM = [
-  { id: 1, name: 'Founder',  username: 'founder',  password: process.env.FOUNDER_PASS  || 'qopi@founder',  role: 'all'      },
-  { id: 2, name: 'Ranjith',  username: 'ranjith',  password: process.env.RANJITH_PASS  || 'qopi@ranjith',  role: 'bd'       },
-  { id: 3, name: 'Admin',    username: 'admin',    password: process.env.ADMIN_PASS    || 'qopi@admin',    role: 'admin'    },
-  { id: 4, name: 'Accounts', username: 'accounts', password: process.env.ACCOUNTS_PASS || 'qopi@accounts', role: 'accounts' },
-  { id: 5, name: 'Raghav',   username: 'raghav',   password: process.env.RAGHAV_PASS   || 'qopi@raghav',   role: 'legal'    },
+  { id: 1, name: 'Founder',  username: 'founder',  password: process.env.FOUNDER_PASS  || 'qopi@founder',  role: 'all' },
+  { id: 2, name: 'Ranjith',  username: 'ranjith',  password: process.env.RANJITH_PASS  || 'qopi@ranjith',  role: 'bd'  },
+  { id: 3, name: 'Admin',    username: 'admin',    password: process.env.ADMIN_PASS    || 'qopi@admin',    role: 'ad'  },
+  { id: 4, name: 'Accounts', username: 'accounts', password: process.env.ACCOUNTS_PASS || 'qopi@accounts', role: 'ac'  },
+  { id: 5, name: 'Raghav',   username: 'raghav',   password: process.env.RAGHAV_PASS   || 'qopi@raghav',   role: 'lg'  },
 ];
 
 const JWT_SECRET = process.env.JWT_SECRET || 'qopikun-secret-change-in-production';

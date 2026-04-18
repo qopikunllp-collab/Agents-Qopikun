@@ -3,85 +3,161 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<meta name="theme-color" content="#0f0e0d">
+<meta name="theme-color" content="#0c0b0a">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Qopikun">
+<meta name="description" content="Qopikun AI Co-Workers — Intelligent AI specialists for BD, Admin, Accounts &amp; Legal.">
 <title>Qopikun AI Co-Workers</title>
 <link rel="manifest" href="/manifest.json">
 <link rel="apple-touch-icon" href="/icons/icon-192.png">
-<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600;700&family=DM+Mono:wght@400;500&family=DM+Serif+Display&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&family=DM+Serif+Display&display=swap" rel="stylesheet">
 <style>
+/* ── DESIGN TOKENS ─────────────────────────────────────────────────────── */
 :root{
-  --ink:#0f0e0d;--paper:#f5f2ee;--cream:#ede9e3;
-  --bd:#c84b2f;--ad:#2f6ec8;--ac:#2a8c5e;--lg:#7c3aed;
-  --muted:#7a746e;--border:#d4cfc8;
-  --shadow:0 2px 12px rgba(15,14,13,.1);
+  --ink:#0c0b0a; --paper:#f7f4f0; --cream:#edeae4; --surface:#fff;
+  --bd:#c84b2f; --ad:#2563eb; --ac:#16a34a; --lg:#7c3aed;
+  --bd-light:#fef2ef; --ad-light:#eff6ff; --ac-light:#f0fdf4; --lg-light:#faf5ff;
+  --muted:#8a8480; --border:#e5e0d8; --border-dk:#ccc8c0;
+  --shadow-sm:0 1px 3px rgba(15,14,13,.08);
+  --shadow:0 2px 12px rgba(15,14,13,.10);
+  --shadow-lg:0 8px 32px rgba(15,14,13,.14);
+  --radius:12px; --radius-sm:8px;
+  --success:#16a34a; --error:#dc2626; --warning:#d97706; --info:#2563eb;
 }
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
 html,body{height:100%;overflow:hidden;font-family:'Sora',sans-serif;}
 body{background:var(--paper);color:var(--ink);display:flex;flex-direction:column;}
 
-/* ── LOGIN SCREEN ── */
+/* ── TOAST SYSTEM ─────────────────────────────────────────────────────── */
+#toasts{
+  position:fixed;bottom:24px;right:20px;z-index:9999;
+  display:flex;flex-direction:column-reverse;gap:8px;pointer-events:none;
+}
+.toast{
+  display:flex;align-items:flex-start;gap:10px;
+  padding:12px 14px;border-radius:10px;
+  font-size:13px;font-weight:400;line-height:1.45;
+  box-shadow:var(--shadow-lg);max-width:320px;min-width:220px;
+  pointer-events:all;
+  transform:translateX(110%);opacity:0;
+  transition:transform .3s cubic-bezier(.22,1,.36,1), opacity .3s ease;
+}
+.toast.show{transform:translateX(0);opacity:1;}
+.toast-error{background:#fff1f0;border:1px solid #fca5a5;color:#991b1b;}
+.toast-warning{background:#fffbeb;border:1px solid #fcd34d;color:#92400e;}
+.toast-success{background:#f0fdf4;border:1px solid #86efac;color:#14532d;}
+.toast-info{background:#eff6ff;border:1px solid #93c5fd;color:#1e3a8a;}
+.toast-icon{font-size:15px;flex-shrink:0;line-height:1;}
+.toast-msg{flex:1;}
+.toast-close{
+  background:none;border:none;cursor:pointer;font-size:14px;
+  color:currentColor;opacity:.5;padding:0 2px;flex-shrink:0;line-height:1;
+  transition:opacity .15s;
+}
+.toast-close:hover{opacity:1;}
+
+/* ── LOGIN SCREEN ─────────────────────────────────────────────────────── */
 #login-screen{
-  position:fixed;inset:0;z-index:100;
-  background:var(--ink);display:flex;flex-direction:column;
-  align-items:center;justify-content:center;padding:32px 24px;
+  position:fixed;inset:0;z-index:200;
+  background:var(--ink);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:32px 24px;
 }
 .login-logo{
-  width:64px;height:64px;background:var(--bd);border-radius:14px;
+  width:68px;height:68px;background:var(--bd);border-radius:16px;
   display:flex;align-items:center;justify-content:center;
-  font-family:'DM Serif Display',serif;font-size:32px;color:#fff;
-  margin-bottom:24px;
+  font-family:'DM Serif Display',serif;font-size:34px;color:#fff;
+  margin-bottom:28px;box-shadow:0 8px 32px rgba(200,75,47,.35);
+  animation:logoIn .5s cubic-bezier(.22,1,.36,1) both;
 }
-.login-title{font-family:'DM Serif Display',serif;font-size:24px;color:#fff;margin-bottom:6px;}
-.login-sub{font-size:12px;color:#9a9490;margin-bottom:40px;letter-spacing:.05em;text-transform:uppercase;}
-.login-form{width:100%;max-width:340px;display:flex;flex-direction:column;gap:12px;}
+@keyframes logoIn{from{transform:scale(.8);opacity:0}to{transform:scale(1);opacity:1}}
+.login-title{
+  font-family:'DM Serif Display',serif;font-size:26px;color:#fff;
+  margin-bottom:6px;animation:fadeUp .5s .1s both;
+}
+.login-sub{
+  font-size:11px;color:#6b6560;margin-bottom:44px;
+  letter-spacing:.08em;text-transform:uppercase;
+  animation:fadeUp .5s .15s both;
+}
+@keyframes fadeUp{from{transform:translateY(10px);opacity:0}to{transform:translateY(0);opacity:1}}
+.login-form{
+  width:100%;max-width:340px;display:flex;flex-direction:column;gap:12px;
+  animation:fadeUp .5s .2s both;
+}
 .login-form input{
-  padding:14px 16px;border-radius:10px;border:1px solid #2a2926;
-  background:#1a1917;color:#f5f2ee;font-family:'Sora',sans-serif;
-  font-size:16px;font-weight:300;outline:none;
-  transition:border .2s;
+  padding:14px 16px;border-radius:10px;
+  border:1.5px solid #242220;
+  background:#181614;color:#f5f2ee;
+  font-family:'Sora',sans-serif;font-size:16px;font-weight:300;
+  outline:none;transition:border-color .2s,box-shadow .2s;
 }
-.login-form input:focus{border-color:#555;}
-.login-form input::placeholder{color:#555;}
+.login-form input:focus{border-color:#3d3a38;box-shadow:0 0 0 3px rgba(200,75,47,.15);}
+.login-form input::placeholder{color:#484440;}
 .login-btn{
   padding:15px;border-radius:10px;border:none;
-  background:var(--bd);color:#fff;font-family:'Sora',sans-serif;
-  font-size:15px;font-weight:600;cursor:pointer;
-  transition:opacity .15s;margin-top:4px;
+  background:var(--bd);color:#fff;
+  font-family:'Sora',sans-serif;font-size:15px;font-weight:600;
+  cursor:pointer;transition:opacity .15s,transform .1s;margin-top:4px;
 }
 .login-btn:hover{opacity:.9;}
-.login-btn:disabled{opacity:.5;cursor:not-allowed;}
-.login-error{color:#f08070;font-size:13px;text-align:center;min-height:18px;}
-.login-footer{font-size:11px;color:#555;margin-top:24px;text-align:center;line-height:1.6;}
+.login-btn:active{transform:scale(.99);}
+.login-btn:disabled{opacity:.45;cursor:not-allowed;}
+.login-error{
+  color:#f87171;font-size:12.5px;text-align:center;
+  min-height:18px;line-height:1.4;
+}
+.login-footer{
+  font-size:11px;color:#3d3a38;margin-top:28px;text-align:center;line-height:1.7;
+  animation:fadeUp .5s .25s both;
+}
 
-/* ── MAIN APP ── */
-#app{display:flex;flex-direction:column;height:100%;display:none;}
+/* ── MAIN APP SHELL ───────────────────────────────────────────────────── */
+#app{display:none;flex-direction:column;height:100%;}
 
+/* Header */
 header{
-  height:54px;flex-shrink:0;background:var(--ink);color:var(--paper);
+  height:52px;flex-shrink:0;
+  background:var(--ink);color:var(--paper);
   padding:0 14px;display:flex;align-items:center;gap:10px;
   border-bottom:3px solid var(--bd);
 }
-.hlogo{width:30px;height:30px;background:var(--bd);border-radius:6px;display:flex;
-  align-items:center;justify-content:center;font-family:'DM Serif Display',serif;
-  font-size:16px;color:#fff;flex-shrink:0;}
-.htitle{font-family:'DM Serif Display',serif;font-size:16px;font-weight:400;}
-.huser{margin-left:auto;font-size:11px;color:#9a9490;flex-shrink:0;}
-.logout-btn{background:none;border:none;color:#555;cursor:pointer;font-size:18px;
-  padding:4px;margin-left:8px;flex-shrink:0;}
+.hlogo{
+  width:30px;height:30px;background:var(--bd);border-radius:6px;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'DM Serif Display',serif;font-size:16px;color:#fff;flex-shrink:0;
+}
+.htitle{font-family:'DM Serif Display',serif;font-size:15px;font-weight:400;}
+.huser{margin-left:auto;font-size:11px;color:#6b6560;flex-shrink:0;}
+.hstatus{
+  width:7px;height:7px;border-radius:50%;background:#4b5055;
+  transition:background .4s;flex-shrink:0;margin-left:6px;
+}
+.hstatus.ok{background:#4caf50;box-shadow:0 0 0 2px rgba(76,175,80,.2);}
+.hstatus.err{background:#ef4444;box-shadow:0 0 0 2px rgba(239,68,68,.2);}
+.logout-btn{
+  background:none;border:none;color:#484440;cursor:pointer;
+  font-size:17px;padding:4px;margin-left:4px;flex-shrink:0;
+  transition:color .15s;
+}
+.logout-btn:hover{color:var(--paper);}
 
-/* ── TABS ── */
-.tabs{height:46px;flex-shrink:0;display:flex;background:var(--cream);
-  border-bottom:1px solid var(--border);overflow-x:auto;overflow-y:hidden;
-  -webkit-overflow-scrolling:touch;scrollbar-width:none;}
+/* Tabs */
+.tabs{
+  height:46px;flex-shrink:0;display:flex;
+  background:var(--cream);border-bottom:1px solid var(--border);
+  overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;
+}
 .tabs::-webkit-scrollbar{display:none;}
-.tab{flex:1;min-width:72px;display:flex;flex-direction:column;align-items:center;
-  justify-content:center;gap:2px;cursor:pointer;border-bottom:3px solid transparent;
-  transition:all .2s;font-size:10px;font-weight:700;color:var(--muted);
-  white-space:nowrap;background:none;border-top:none;border-left:none;border-right:none;
-  font-family:'Sora',sans-serif;}
+.tab{
+  flex:1;min-width:76px;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:2px;
+  cursor:pointer;border-bottom:3px solid transparent;
+  background:none;border-top:none;border-left:none;border-right:none;
+  font-family:'Sora',sans-serif;font-size:10px;font-weight:700;
+  color:var(--muted);white-space:nowrap;transition:all .2s;
+}
 .tab-icon{font-size:14px;line-height:1;}
 .tab:hover{color:var(--ink);}
 .tab.active[data-r="bd"]{border-bottom-color:var(--bd);color:var(--bd);background:#fff;}
@@ -89,127 +165,250 @@ header{
 .tab.active[data-r="ac"]{border-bottom-color:var(--ac);color:var(--ac);background:#fff;}
 .tab.active[data-r="lg"]{border-bottom-color:var(--lg);color:var(--lg);background:#fff;}
 
-/* ── WORKSPACE ── */
+/* Workspaces */
 .ws{display:none;flex-direction:column;flex:1;overflow:hidden;}
 .ws.active{display:flex;}
 
-/* ── PERSONA BAR ── */
-.pbar{flex-shrink:0;padding:8px 14px;display:flex;align-items:center;gap:8px;
-  border-bottom:1px solid var(--border);background:#fff;}
-.pav{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;
-  justify-content:center;font-size:13px;flex-shrink:0;}
-.bd .pav{background:#fde8e3;} .ad .pav{background:#e3edfb;}
-.ac .pav{background:#e3f4ec;} .lg .pav{background:#ede9fb;}
+/* Persona bar */
+.pbar{
+  flex-shrink:0;padding:9px 14px;display:flex;align-items:center;gap:9px;
+  border-bottom:1px solid var(--border);background:var(--surface);
+}
+.pav{
+  width:32px;height:32px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:15px;flex-shrink:0;
+}
+.bd .pav{background:var(--bd-light);}
+.ad .pav{background:var(--ad-light);}
+.ac .pav{background:var(--ac-light);}
+.lg .pav{background:var(--lg-light);}
+.pinfo{flex:1;min-width:0;}
 .pname{font-size:12px;font-weight:700;}
 .psub{font-size:10px;color:var(--muted);font-weight:300;}
-.sdot{width:7px;height:7px;border-radius:50%;background:#4caf50;
-  margin-left:auto;flex-shrink:0;box-shadow:0 0 0 2px rgba(76,175,80,.2);}
-.ebtn{font-size:11px;padding:5px 9px;border-radius:13px;border:1px solid var(--border);
-  background:var(--paper);cursor:pointer;font-family:'Sora',sans-serif;font-weight:600;
-  color:var(--muted);transition:all .15s;flex-shrink:0;}
-.ebtn:hover,.ebtn:active{background:#fff;border-color:#999;color:var(--ink);}
+.sdot{
+  width:7px;height:7px;border-radius:50%;background:#4caf50;
+  flex-shrink:0;box-shadow:0 0 0 2px rgba(76,175,80,.2);
+}
+.sdot.busy{background:var(--warning);box-shadow:0 0 0 2px rgba(217,119,6,.2);animation:pulse 1.2s infinite;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+.pacts{display:flex;gap:5px;flex-shrink:0;}
+.pbtn{
+  font-size:11px;padding:5px 9px;border-radius:13px;
+  border:1px solid var(--border);background:var(--paper);
+  cursor:pointer;font-family:'Sora',sans-serif;font-weight:600;
+  color:var(--muted);transition:all .15s;white-space:nowrap;
+}
+.pbtn:hover,.pbtn:active{background:#fff;border-color:#aaa;color:var(--ink);}
 
-/* ── EMAIL PANEL ── */
-.epanel{flex-shrink:0;background:#fff;border-bottom:1px solid var(--border);
-  padding:9px 14px;display:none;}
+/* Email panel */
+.epanel{
+  flex-shrink:0;background:var(--surface);
+  border-bottom:1px solid var(--border);
+  padding:10px 14px;display:none;
+}
 .epanel.open{display:block;}
-.ept{font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;
-  color:var(--muted);margin-bottom:7px;}
+.ept{
+  font-size:10px;font-weight:700;letter-spacing:.07em;
+  text-transform:uppercase;color:var(--muted);margin-bottom:8px;
+}
 .epacts{display:flex;gap:5px;flex-wrap:wrap;}
-.ea{font-size:11px;padding:5px 10px;border-radius:15px;cursor:pointer;
-  border:1px solid var(--border);background:var(--paper);font-family:'Sora',sans-serif;
-  transition:all .13s;white-space:nowrap;color:var(--ink);}
+.ea{
+  font-size:11px;padding:5px 10px;border-radius:15px;cursor:pointer;
+  border:1px solid var(--border);background:var(--paper);
+  font-family:'Sora',sans-serif;transition:all .13s;
+  white-space:nowrap;color:var(--ink);
+}
 .ea:active{background:#fff;border-color:#999;}
 
-/* ── CHAT ── */
-.chat{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;
-  gap:11px;background:var(--paper);-webkit-overflow-scrolling:touch;}
-.msg{display:flex;gap:7px;align-items:flex-start;animation:si .2s ease;}
-@keyframes si{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+/* Chat area */
+.chat{
+  flex:1;overflow-y:auto;padding:14px;
+  display:flex;flex-direction:column;gap:11px;
+  background:var(--paper);-webkit-overflow-scrolling:touch;
+}
+.chat::-webkit-scrollbar{width:4px;}
+.chat::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px;}
+
+/* Messages */
+.msg{display:flex;gap:8px;align-items:flex-start;animation:msgIn .22s ease both;}
+@keyframes msgIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
 .msg.u{flex-direction:row-reverse;}
-.mav{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;
-  justify-content:center;font-size:9px;flex-shrink:0;font-weight:700;color:#fff;
-  background:var(--muted);}
+.mav{
+  width:27px;height:27px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:9px;flex-shrink:0;font-weight:700;color:#fff;
+  background:var(--muted);
+}
 .msg.u .mav{background:var(--ink);}
-.mbub{max-width:83%;padding:10px 13px;border-radius:14px;font-size:13px;
-  line-height:1.65;font-weight:300;}
-.msg.u .mbub{background:var(--ink);color:var(--paper);border-bottom-right-radius:4px;}
-.msg.ai .mbub{background:#fff;border-bottom-left-radius:4px;box-shadow:var(--shadow);}
+.mbody{position:relative;max-width:84%;}
+.mbub{
+  padding:10px 13px;border-radius:14px;
+  font-size:13px;line-height:1.65;font-weight:300;
+}
+.msg.u .mbub{
+  background:var(--ink);color:var(--paper);
+  border-bottom-right-radius:4px;
+}
+.msg.ai .mbub{
+  background:var(--surface);border-bottom-left-radius:4px;
+  box-shadow:var(--shadow);
+}
 .bd .msg.ai .mbub{border-left:3px solid var(--bd);}
 .ad .msg.ai .mbub{border-left:3px solid var(--ad);}
 .ac .msg.ai .mbub{border-left:3px solid var(--ac);}
 .lg .msg.ai .mbub{border-left:3px solid var(--lg);}
-.mtime{font-size:9px;color:var(--muted);margin-top:3px;font-family:'DM Mono',monospace;}
 
-/* ── QUICK PROMPTS ── */
-.qps{flex-shrink:0;padding:7px 14px;display:flex;gap:5px;flex-wrap:wrap;
-  background:#fff;border-top:1px solid var(--border);overflow-x:auto;}
-.ql{font-size:10px;color:var(--muted);width:100%;font-weight:700;
-  letter-spacing:.06em;text-transform:uppercase;}
-.qb{font-size:11px;padding:5px 10px;border-radius:17px;cursor:pointer;
-  border:1px solid var(--border);background:var(--paper);font-family:'Sora',sans-serif;
-  transition:all .13s;white-space:nowrap;color:var(--ink);}
+/* Message meta row */
+.mmeta{
+  display:flex;align-items:center;gap:8px;margin-top:4px;
+}
+.mtime{font-size:9px;color:var(--muted);font-family:'DM Mono',monospace;}
+.copy-btn{
+  background:none;border:none;cursor:pointer;font-size:12px;
+  color:var(--muted);padding:0;opacity:0;transition:opacity .15s;
+  line-height:1;
+}
+.mbody:hover .copy-btn{opacity:1;}
+.copy-btn:active{transform:scale(.9);}
+
+/* Error message in chat */
+.err-bubble .mbub{
+  background:#fff1f0;border-left:3px solid var(--error) !important;
+  color:#991b1b;font-size:13px;
+}
+
+/* Quick prompts */
+.qps{
+  flex-shrink:0;padding:7px 14px;display:flex;gap:5px;flex-wrap:wrap;
+  background:var(--surface);border-top:1px solid var(--border);
+  overflow-x:auto;-webkit-overflow-scrolling:touch;
+}
+.qps::-webkit-scrollbar{display:none;}
+.ql{font-size:10px;color:var(--muted);width:100%;font-weight:700;letter-spacing:.06em;text-transform:uppercase;}
+.qb{
+  font-size:11px;padding:5px 10px;border-radius:17px;cursor:pointer;
+  border:1px solid var(--border);background:var(--paper);
+  font-family:'Sora',sans-serif;transition:all .13s;white-space:nowrap;color:var(--ink);
+}
 .qb:active{transform:scale(.97);}
 .bd .qb:active{color:var(--bd);border-color:var(--bd);}
 .ad .qb:active{color:var(--ad);border-color:var(--ad);}
 .ac .qb:active{color:var(--ac);border-color:var(--ac);}
 .lg .qb:active{color:var(--lg);border-color:var(--lg);}
 
-/* ── INPUT ── */
-.ibar{flex-shrink:0;padding:10px 14px;background:#fff;border-top:1px solid var(--border);
+/* Input bar */
+.ibar{
+  flex-shrink:0;padding:10px 14px;background:var(--surface);
+  border-top:1px solid var(--border);
   display:flex;gap:7px;align-items:flex-end;
-  padding-bottom:max(10px,env(safe-area-inset-bottom));}
-.ibar textarea{flex:1;resize:none;border:1px solid var(--border);border-radius:10px;
-  padding:9px 12px;font-family:'Sora',sans-serif;font-size:16px;font-weight:300;
-  line-height:1.5;min-height:40px;max-height:100px;
-  background:var(--paper);color:var(--ink);outline:none;transition:border .2s;}
-.bd .ibar textarea:focus{border-color:var(--bd);}
-.ad .ibar textarea:focus{border-color:var(--ad);}
-.ac .ibar textarea:focus{border-color:var(--ac);}
-.lg .ibar textarea:focus{border-color:var(--lg);}
-.sbtn{width:42px;height:42px;border-radius:10px;border:none;cursor:pointer;
-  display:flex;align-items:center;justify-content:center;font-size:16px;
-  transition:all .15s;flex-shrink:0;color:#fff;}
+  padding-bottom:max(10px,env(safe-area-inset-bottom));
+}
+.ibar textarea{
+  flex:1;resize:none;border:1.5px solid var(--border);border-radius:10px;
+  padding:10px 12px;font-family:'Sora',sans-serif;font-size:16px;font-weight:300;
+  line-height:1.5;min-height:42px;max-height:120px;
+  background:var(--paper);color:var(--ink);outline:none;
+  transition:border-color .2s,box-shadow .2s;
+}
+.bd .ibar textarea:focus{border-color:var(--bd);box-shadow:0 0 0 3px rgba(200,75,47,.1);}
+.ad .ibar textarea:focus{border-color:var(--ad);box-shadow:0 0 0 3px rgba(37,99,235,.1);}
+.ac .ibar textarea:focus{border-color:var(--ac);box-shadow:0 0 0 3px rgba(22,163,74,.1);}
+.lg .ibar textarea:focus{border-color:var(--lg);box-shadow:0 0 0 3px rgba(124,58,237,.1);}
+.sbtn{
+  width:42px;height:42px;border-radius:10px;border:none;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  font-size:16px;transition:all .15s;flex-shrink:0;color:#fff;
+}
 .bd .sbtn{background:var(--bd);} .ad .sbtn{background:var(--ad);}
 .ac .sbtn{background:var(--ac);} .lg .sbtn{background:var(--lg);}
-.sbtn:active{transform:scale(.95);}
+.sbtn:active{transform:scale(.94);}
 .sbtn:disabled{opacity:.35;cursor:not-allowed;}
 
-/* ── TYPING ── */
-.typing{display:flex;gap:4px;align-items:center;padding:7px 11px;}
-.typing span{width:5px;height:5px;border-radius:50%;background:var(--muted);
-  animation:bnc 1.2s infinite;}
-.typing span:nth-child(2){animation-delay:.2s}
-.typing span:nth-child(3){animation-delay:.4s}
+/* Typing indicator */
+.typing-wrap{display:flex;gap:4px;align-items:center;padding:8px 12px;}
+.typing-wrap span{
+  width:5px;height:5px;border-radius:50%;background:var(--muted);
+  animation:bnc 1.2s infinite;
+}
+.typing-wrap span:nth-child(2){animation-delay:.2s}
+.typing-wrap span:nth-child(3){animation-delay:.4s}
 @keyframes bnc{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-5px)}}
 
-/* ── INSTALL BANNER ── */
+/* ── MARKDOWN STYLES ──────────────────────────────────────────────────── */
+.mbub .mp{margin:.3em 0;line-height:1.65;}
+.mbub .mp:first-child{margin-top:0;}
+.mbub .mp:last-child{margin-bottom:0;}
+.mbub .mh1{font-size:16px;font-weight:700;margin:.6em 0 .3em;line-height:1.3;}
+.mbub .mh2{font-size:14px;font-weight:700;margin:.5em 0 .25em;line-height:1.3;}
+.mbub .mh3{font-size:13px;font-weight:700;margin:.4em 0 .2em;line-height:1.3;}
+.mbub .mul{padding-left:18px;margin:.35em 0;display:flex;flex-direction:column;gap:3px;}
+.mbub .mol{padding-left:20px;margin:.35em 0;display:flex;flex-direction:column;gap:3px;}
+.mbub li{font-size:13px;font-weight:300;line-height:1.6;}
+.mbub .mhr{border:none;border-top:1px solid var(--border);margin:.6em 0;}
+.mbub .mlink{color:var(--info);text-decoration:underline;text-underline-offset:2px;}
+.mbub .mlink:hover{opacity:.8;}
+.mbub .icode{
+  background:#f0ede8;padding:1px 5px;border-radius:4px;
+  font-family:'DM Mono',monospace;font-size:11.5px;color:#c84b2f;
+}
+.mbub .code-wrap{margin:.5em 0;border-radius:8px;overflow:hidden;background:#1a1917;}
+.mbub .code-lang{
+  display:block;padding:5px 12px;font-size:10px;font-family:'DM Mono',monospace;
+  color:#6b6560;background:#111009;text-transform:uppercase;letter-spacing:.06em;
+}
+.mbub .code-pre{
+  margin:0;padding:12px;overflow-x:auto;
+}
+.mbub .code-pre code{
+  font-family:'DM Mono',monospace;font-size:12px;
+  color:#d4cfca;line-height:1.6;white-space:pre;
+}
+.mbub .table-wrap{overflow-x:auto;margin:.5em 0;}
+.mbub .mdtable{
+  border-collapse:collapse;width:100%;font-size:12px;
+}
+.mbub .mdtable th{
+  padding:7px 12px;background:#f0ede8;border:1px solid var(--border);
+  text-align:left;font-weight:700;white-space:nowrap;
+}
+.mbub .mdtable td{
+  padding:6px 12px;border:1px solid var(--border);
+  font-weight:300;vertical-align:top;
+}
+.mbub .mdtable tr:nth-child(even) td{background:#faf8f5;}
+
+/* ── INSTALL BANNER ───────────────────────────────────────────────────── */
 #install-banner{
   display:none;position:fixed;bottom:0;left:0;right:0;z-index:50;
   background:var(--ink);color:var(--paper);
   padding:14px 20px 20px;border-top:2px solid var(--bd);
-  display:none;align-items:center;gap:12px;
+  align-items:center;gap:12px;
   padding-bottom:max(20px,env(safe-area-inset-bottom));
 }
 #install-banner.show{display:flex;}
 .install-text{flex:1;font-size:13px;line-height:1.4;}
 .install-text strong{display:block;font-size:14px;margin-bottom:2px;}
-.install-yes{padding:8px 16px;background:var(--bd);color:#fff;border:none;
-  border-radius:8px;font-family:'Sora',sans-serif;font-size:13px;
-  font-weight:600;cursor:pointer;flex-shrink:0;}
-.install-no{background:none;border:none;color:#555;cursor:pointer;
-  font-size:20px;padding:4px;flex-shrink:0;}
-
-.chat::-webkit-scrollbar{width:3px;}
-.chat::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
+.install-yes{
+  padding:8px 16px;background:var(--bd);color:#fff;border:none;
+  border-radius:8px;font-family:'Sora',sans-serif;
+  font-size:13px;font-weight:600;cursor:pointer;flex-shrink:0;
+}
+.install-no{
+  background:none;border:none;color:#555;cursor:pointer;
+  font-size:20px;padding:4px;flex-shrink:0;
+}
 
 @media(max-width:380px){
   .pname,.psub{font-size:11px;}
-  .mbub{max-width:89%;font-size:12px;}
+  .mbub{max-width:90%;font-size:12px;}
 }
 </style>
 </head>
 <body>
+
+<!-- TOAST CONTAINER -->
+<div id="toasts"></div>
 
 <!-- LOGIN -->
 <div id="login-screen">
@@ -217,12 +416,15 @@ header{
   <div class="login-title">Qopikun AI Co-Workers</div>
   <div class="login-sub">Sign in to continue</div>
   <form class="login-form" onsubmit="doLogin(event)">
-    <input id="l-user" type="text" placeholder="Username" autocomplete="username" autocapitalize="none">
+    <input id="l-user" type="text"     placeholder="Username" autocomplete="username" autocapitalize="none" autocorrect="off">
     <input id="l-pass" type="password" placeholder="Password" autocomplete="current-password">
     <div class="login-error" id="l-err"></div>
     <button class="login-btn" id="l-btn" type="submit">Sign in</button>
   </form>
-  <div class="login-footer">Qopikun Services LLP &amp; Qopikun Global Services Pvt Ltd<br>Powered by Claude AI</div>
+  <div class="login-footer">
+    Qopikun Services LLP &amp; Qopikun Global Services Pvt Ltd<br>
+    Powered by Claude AI
+  </div>
 </div>
 
 <!-- MAIN APP -->
@@ -231,36 +433,38 @@ header{
     <div class="hlogo">Q</div>
     <div class="htitle">Qopikun AI Co-Workers</div>
     <div class="huser" id="h-user"></div>
+    <div class="hstatus" id="h-status" title="AI service status"></div>
     <button class="logout-btn" onclick="doLogout()" title="Sign out">⏻</button>
   </header>
-
   <div class="tabs" id="tabs-bar"></div>
   <div id="workspaces"></div>
 </div>
 
-<!-- INSTALL BANNER -->
+<!-- PWA INSTALL BANNER -->
 <div id="install-banner">
   <div class="install-text">
     <strong>Install as app</strong>
     Add to your home screen for the full experience
   </div>
   <button class="install-yes" onclick="installApp()">Install</button>
-  <button class="install-no" onclick="dismissInstall()">✕</button>
+  <button class="install-no"  onclick="dismissInstall()">✕</button>
 </div>
 
 <script>
-// ── AGENT CONFIG ──
+// ═══════════════════════════════════════════════════════════
+// AGENT CONFIGURATION
+// ═══════════════════════════════════════════════════════════
 const AGENTS = {
-  bd: {
+  bd:{
     name:'Aarav', title:'BD Specialist',
-    sub:'Sales · Proposals · Outreach · Gmail',
+    sub:'Sales · Proposals · Outreach · Strategy',
     icon:'🚀', av:'Aa',
     emails:[
-      ['📬 Unread inbox',   'Show my unread emails and summarise them'],
-      ['🎯 Client leads',   'Find emails from potential clients or new leads in my inbox'],
-      ['📄 RFPs received',  'Find any RFPs or proposals received recently'],
-      ['📋 BD digest',      'Summarise my last 10 emails and flag BD opportunities'],
-      ['✍️ Follow-up draft','Draft a follow-up email to a recent prospect'],
+      ['📬 Unread inbox',    'Show my unread emails and summarise them'],
+      ['🎯 Client leads',    'Find emails from potential clients or new leads in my inbox'],
+      ['📄 RFPs received',   'Find any RFPs or proposals received recently'],
+      ['📋 BD digest',       'Summarise my last 10 emails and flag BD opportunities'],
+      ['✍️ Follow-up draft', 'Draft a follow-up email to a recent prospect'],
     ],
     quick:[
       ['Client emails',  'Check my inbox for unanswered client emails'],
@@ -268,37 +472,37 @@ const AGENTS = {
       ['Cold outreach',  'Write a cold outreach email to an enterprise client'],
       ['Email digest',   'Summarise recent emails and flag BD opportunities'],
     ],
-    intro:"Hi! I'm <strong>Aarav</strong>, your BD specialist. I have live Gmail access — I can check your inbox, find leads, draft replies, and craft proposals. Tap <strong>📧 Email</strong> or just ask me!"
+    intro:"Hi! I'm <strong>Aarav</strong>, your BD specialist. I can help with client proposals, pitch decks, cold outreach, market research, and partnership strategies. What would you like to work on?"
   },
-  ad: {
+  ad:{
     name:'Ishita', title:'Admin & PA',
-    sub:'Scheduling · Emails · Documents · Gmail',
-    icon:'🗂️', av:'I',
+    sub:'Scheduling · Emails · Documents · SOPs',
+    icon:'🗂️', av:'Is',
     emails:[
-      ['📬 Unread summary',  'Show my unread emails and give me a clear summary of each one'],
-      ['🚨 Urgent emails',   'Find emails that need urgent action or reply today'],
-      ['📅 Meeting requests','Find any meeting requests or scheduling emails in my inbox'],
-      ['🔄 Reschedule',      'Draft a polite email to reschedule a meeting'],
-      ['📢 Team email',      'Write a professional internal announcement for the Qopikun team'],
+      ['📬 Unread summary',   'Show my unread emails and give me a clear summary of each one'],
+      ['🚨 Urgent emails',    'Find emails that need urgent action or reply today'],
+      ['📅 Meeting requests', 'Find any meeting requests or scheduling emails in my inbox'],
+      ['🔄 Reschedule',       'Draft a polite email to reschedule a meeting'],
+      ['📢 Team email',       'Write a professional internal announcement for the Qopikun team'],
     ],
     quick:[
-      ['Unread emails',  "What are my unread emails? Summarise them"],
+      ['Unread emails',  'What are my unread emails? Summarise them'],
       ['Urgent emails',  'Find emails that need urgent reply today'],
       ['Meeting agenda', 'Write an agenda for a weekly team meeting'],
       ['Reschedule',     'Draft a professional email to reschedule a meeting'],
     ],
-    intro:"Hello! I'm <strong>Ishita</strong>, your Admin & PA. I have live Gmail access — I can read your inbox, flag urgent emails, summarise threads, and draft replies. Tap <strong>📧 Email</strong> or tell me what to handle!"
+    intro:"Hello! I'm <strong>Ishita</strong>, your Admin & PA. I handle emails, scheduling, meeting agendas, SOPs, and all internal communications. What can I take care of for you?"
   },
-  ac: {
+  ac:{
     name:'Amit', title:'Accounts Specialist',
-    sub:'Finance · Invoicing · Compliance · Gmail',
+    sub:'Finance · Invoicing · GST · Compliance',
     icon:'📊', av:'Am',
     emails:[
-      ['🧾 Invoice emails',   'Find any invoices or payment-related emails in my inbox'],
-      ['💰 Pending payments', 'Find emails about pending payments or dues from clients'],
-      ['📨 Payment reminder', 'Draft a payment reminder email to a client'],
-      ['📑 GST/Tax emails',   'Find any GST or tax-related emails received recently'],
-      ['📋 Finance digest',   'Summarise recent finance-related emails for my review'],
+      ['🧾 Invoice emails',    'Find any invoices or payment-related emails in my inbox'],
+      ['💰 Pending payments',  'Find emails about pending payments or dues from clients'],
+      ['📨 Payment reminder',  'Draft a payment reminder email to a client'],
+      ['📑 GST / Tax emails',  'Find any GST or tax-related emails received recently'],
+      ['📋 Finance digest',    'Summarise recent finance-related emails for my review'],
     ],
     quick:[
       ['Invoice emails',   'Check inbox for any invoice or payment emails'],
@@ -306,72 +510,197 @@ const AGENTS = {
       ['Monthly report',   'Help me structure a monthly financial summary report'],
       ['GST compliance',   'Explain GST compliance requirements for Qopikun Services LLP'],
     ],
-    intro:"Good day! I'm <strong>Amit</strong>, your Accounts specialist. With live Gmail access I can check invoices, payment threads, GST notices, and draft reminders. Tap <strong>📧 Email</strong> or ask me directly."
+    intro:"Good day! I'm <strong>Amit</strong>, your Accounts specialist. I cover invoicing, GST/TDS compliance, salary structuring, financial reports, and audit support. What would you like help with?"
   },
-  lg: {
-    name:'Raghav', title:'CA, LLB Associate Director',
-    sub:'Legal · Compliance · HR Law · Strategy · Gmail',
-    icon:'⚖️', av:'R',
+  lg:{
+    name:'Raghav', title:'CA, LLB — Associate Director',
+    sub:'Legal · Compliance · HR Law · Strategy',
+    icon:'⚖️', av:'Ra',
     emails:[
-      ['⚖️ Legal notices',    'Find any legal notices, compliance or regulatory emails in my inbox'],
-      ['🏛️ ROC/MCA emails',  'Find any ROC, MCA or government filing emails received'],
-      ['📝 Contracts',        'Find any contract or NDA related emails for review'],
-      ['✍️ Legal reply',      'Draft a legally precise reply to a compliance notice in my inbox'],
-      ['📋 Compliance digest','Summarise all compliance and legal emails from this week'],
+      ['⚖️ Legal notices',     'Find any legal notices, compliance or regulatory emails in my inbox'],
+      ['🏛️ ROC / MCA emails', 'Find any ROC, MCA or government filing emails received'],
+      ['📝 Contracts',         'Find any contract or NDA related emails for review'],
+      ['✍️ Legal reply',       'Draft a legally precise reply to a compliance notice in my inbox'],
+      ['📋 Compliance digest', 'Summarise all compliance and legal emails from this week'],
     ],
     quick:[
-      ['Legal notices',    'Check inbox for any legal notices or compliance emails'],
+      ['Legal notices',     'Check inbox for any legal notices or compliance emails'],
       ['Appointment letter','Draft an employment appointment letter for a new hire at Qopikun'],
-      ['ROC compliance',   'What are ROC compliance requirements for our LLP and Pvt Ltd?'],
-      ['Draft NDA',        'Draft a non-disclosure agreement for a Qopikun client engagement'],
-      ['IP strategy',      'Advise on IP protection strategy for Qopikun globally'],
+      ['ROC compliance',    'What are ROC compliance requirements for our LLP and Pvt Ltd?'],
+      ['Draft NDA',         'Draft a non-disclosure agreement for a Qopikun client engagement'],
     ],
-    intro:"Good day! I'm <strong>Raghav</strong>, your CA, LLB Associate Director at Qopikun. With live Gmail access I monitor your inbox for legal notices, compliance emails, and contracts — and draft legally precise responses. Brief me on what needs addressing."
+    intro:"Good day! I'm <strong>Raghav</strong>, your CA, LLB Associate Director. I draft contracts, NDAs, appointment letters, compliance calendars, legal strategies, and full HR policy documents. Brief me on what needs addressing."
   }
 };
 
-// ── STATE ──
-let token = localStorage.getItem('qop_token');
+// ═══════════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════════
+let token    = localStorage.getItem('qop_token');
 let userName = localStorage.getItem('qop_name');
 let userRole = localStorage.getItem('qop_role');
-const histories = {bd:[],ad:[],ac:[],lg:[]};
+const histories = { bd:[], ad:[], ac:[], lg:[] };
 let deferredInstall = null;
 
-// ── INIT ──
+// ═══════════════════════════════════════════════════════════
+// TOAST SYSTEM
+// ═══════════════════════════════════════════════════════════
+const TOAST_ICONS = { error:'⚠️', warning:'💡', success:'✅', info:'ℹ️' };
+
+function showToast(msg, type = 'error', duration = 5500) {
+  const c = document.getElementById('toasts');
+  const t = document.createElement('div');
+  t.className = `toast toast-${type}`;
+  t.innerHTML = `
+    <span class="toast-icon">${TOAST_ICONS[type] || '•'}</span>
+    <span class="toast-msg">${msg}</span>
+    <button class="toast-close" onclick="this.parentElement.remove()">✕</button>`;
+  c.appendChild(t);
+  requestAnimationFrame(() => requestAnimationFrame(() => t.classList.add('show')));
+  setTimeout(() => { t.classList.remove('show'); setTimeout(() => t.remove(), 350); }, duration);
+}
+
+// ═══════════════════════════════════════════════════════════
+// MARKDOWN RENDERER
+// ═══════════════════════════════════════════════════════════
+function escHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function renderMarkdown(raw) {
+  if (!raw) return '';
+
+  // Step 1: Extract fenced code blocks to protect them from further processing
+  const cblocks = [];
+  let text = raw.replace(/```([\w]*)\n?([\s\S]*?)```/g, (_, lang, code) => {
+    const i = cblocks.length;
+    const label = lang ? `<span class="code-lang">${escHtml(lang)}</span>` : '';
+    cblocks.push(`<div class="code-wrap">${label}<pre class="code-pre"><code>${escHtml(code.trim())}</code></pre></div>`);
+    return `\x00CB${i}\x00`;
+  });
+
+  // Step 2: Escape HTML in remaining text
+  text = text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+
+  // Step 3: Inline code
+  text = text.replace(/`([^`\n]+)`/g, '<code class="icode">$1</code>');
+
+  // Step 4: Headers (h3 before h2 before h1)
+  text = text
+    .replace(/^### (.+)$/gm, '<h3 class="mh3">$1</h3>')
+    .replace(/^## (.+)$/gm,  '<h2 class="mh2">$1</h2>')
+    .replace(/^# (.+)$/gm,   '<h1 class="mh1">$1</h1>');
+
+  // Step 5: Bold/italic
+  text = text
+    .replace(/\*\*\*(.+?)\*\*\*/gs, '<strong><em>$1</em></strong>')
+    .replace(/\*\*(.+?)\*\*/gs,     '<strong>$1</strong>')
+    .replace(/\*(.+?)\*/gs,         '<em>$1</em>');
+
+  // Step 6: Horizontal rules
+  text = text.replace(/^---+$/gm, '<hr class="mhr">');
+
+  // Step 7: Tables (must come before lists)
+  text = text.replace(/^\|(.+)\|\n\|[-:| ]+\|\n((?:\|.+\|\n?)+)/gm, (_, header, rows) => {
+    const ths = header.split('|').filter(s=>s.trim())
+      .map(h => `<th>${h.trim()}</th>`).join('');
+    const trs = rows.trim().split('\n').map(row => {
+      const tds = row.split('|').filter(s=>s.trim())
+        .map(c => `<td>${c.trim()}</td>`).join('');
+      return `<tr>${tds}</tr>`;
+    }).join('');
+    return `<div class="table-wrap"><table class="mdtable"><thead><tr>${ths}</tr></thead><tbody>${trs}</tbody></table></div>\n`;
+  });
+
+  // Step 8: Lists
+  // Unordered (lines starting with -, *, or •)
+  text = text.replace(/((?:^[ \t]*[-*•] .+(?:\n|$))+)/gm, block => {
+    const items = block.trim().split('\n').filter(Boolean)
+      .map(l => `<li>${l.replace(/^[ \t]*[-*•] /, '')}</li>`).join('');
+    return `<ul class="mul">${items}</ul>\n`;
+  });
+  // Ordered (lines starting with digit.)
+  text = text.replace(/((?:^[ \t]*\d+\. .+(?:\n|$))+)/gm, block => {
+    const items = block.trim().split('\n').filter(Boolean)
+      .map(l => `<li>${l.replace(/^[ \t]*\d+\. /, '')}</li>`).join('');
+    return `<ol class="mol">${items}</ol>\n`;
+  });
+
+  // Step 9: Links
+  text = text.replace(/\[([^\]]+)\]\(([^)]+)\)/g,
+    '<a href="$2" target="_blank" rel="noopener noreferrer" class="mlink">$1</a>');
+
+  // Step 10: Paragraphs — split on blank lines
+  text = text.split(/\n{2,}/).map(para => {
+    const p = para.trim();
+    if (!p) return '';
+    if (/^<(h[1-3]|ul|ol|div|hr|table|pre)/.test(p)) return p;
+    return `<p class="mp">${p.replace(/\n/g, '<br>')}</p>`;
+  }).join('');
+
+  // Step 11: Restore code blocks
+  cblocks.forEach((b, i) => { text = text.replace(`\x00CB${i}\x00`, b); });
+
+  return text || escHtml(raw);
+}
+
+// ═══════════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════════
 window.addEventListener('load', () => {
   if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js');
-  if (token) showApp();
+  if (token) { showApp(); checkApiHealth(); }
 });
 
 window.addEventListener('beforeinstallprompt', e => {
-  e.preventDefault();
-  deferredInstall = e;
-  if (!localStorage.getItem('install_dismissed')) {
+  e.preventDefault(); deferredInstall = e;
+  if (!localStorage.getItem('install_dismissed'))
     setTimeout(() => document.getElementById('install-banner').classList.add('show'), 3000);
-  }
 });
 
-// ── LOGIN ──
+// ═══════════════════════════════════════════════════════════
+// HEALTH CHECK
+// ═══════════════════════════════════════════════════════════
+async function checkApiHealth() {
+  try {
+    const res  = await fetch('/api/health');
+    const data = await res.json();
+    const dot  = document.getElementById('h-status');
+    if (data.aiConfigured) {
+      dot.classList.add('ok'); dot.classList.remove('err');
+      dot.title = 'AI service ready';
+    } else {
+      dot.classList.add('err'); dot.classList.remove('ok');
+      dot.title = 'AI not configured — check .env';
+      showToast('AI service not configured. Please add your ANTHROPIC_API_KEY to the .env file.', 'warning', 8000);
+    }
+  } catch { /* silent fail */ }
+}
+
+// ═══════════════════════════════════════════════════════════
+// LOGIN / LOGOUT
+// ═══════════════════════════════════════════════════════════
 async function doLogin(e) {
   e.preventDefault();
-  const btn = document.getElementById('l-btn');
-  const err = document.getElementById('l-err');
-  const username = document.getElementById('l-user').value.trim();
-  const password = document.getElementById('l-pass').value;
+  const btn  = document.getElementById('l-btn');
+  const err  = document.getElementById('l-err');
+  const user = document.getElementById('l-user').value.trim();
+  const pass = document.getElementById('l-pass').value;
   err.textContent = '';
   btn.disabled = true; btn.textContent = 'Signing in…';
   try {
-    const res = await fetch('/api/auth/login', {
+    const res  = await fetch('/api/auth/login', {
       method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({username, password})
+      body: JSON.stringify({ username: user, password: pass })
     });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || 'Login failed');
     token = data.token; userName = data.name; userRole = data.role;
     localStorage.setItem('qop_token', token);
-    localStorage.setItem('qop_name', userName);
-    localStorage.setItem('qop_role', userRole);
+    localStorage.setItem('qop_name',  userName);
+    localStorage.setItem('qop_role',  userRole);
     showApp();
+    checkApiHealth();
   } catch(ex) {
     err.textContent = ex.message;
     btn.disabled = false; btn.textContent = 'Sign in';
@@ -379,13 +708,17 @@ async function doLogin(e) {
 }
 
 function doLogout() {
-  localStorage.clear();
+  ['qop_token','qop_name','qop_role'].forEach(k => localStorage.removeItem(k));
   token = null; userName = null; userRole = null;
+  // Reset histories
+  Object.keys(histories).forEach(k => histories[k] = []);
   document.getElementById('app').style.display = 'none';
   document.getElementById('login-screen').style.display = 'flex';
 }
 
-// ── BUILD APP ──
+// ═══════════════════════════════════════════════════════════
+// BUILD APP
+// ═══════════════════════════════════════════════════════════
 function showApp() {
   document.getElementById('login-screen').style.display = 'none';
   document.getElementById('app').style.display = 'flex';
@@ -404,11 +737,11 @@ function buildTabs(roles) {
   const bar = document.getElementById('tabs-bar');
   bar.innerHTML = '';
   roles.forEach(r => {
-    const a = AGENTS[r];
+    const a   = AGENTS[r];
     const btn = document.createElement('button');
     btn.className = 'tab'; btn.dataset.r = r;
     btn.innerHTML = `<span class="tab-icon">${a.icon}</span>${a.name}`;
-    btn.onclick = () => switchTab(r);
+    btn.onclick   = () => switchTab(r);
     bar.appendChild(btn);
   });
 }
@@ -419,30 +752,46 @@ function buildWorkspaces(roles) {
   cont.style.cssText = 'display:flex;flex-direction:column;flex:1;overflow:hidden;';
 
   roles.forEach(r => {
-    const a = AGENTS[r];
+    const a  = AGENTS[r];
     const ws = document.createElement('div');
     ws.className = `ws ${r}`; ws.id = `ws-${r}`;
+
+    const emailBtns = a.emails.map(([l,t]) =>
+      `<button class="ea" onclick="ea('${r}','${t.replace(/'/g,"\\'")}')"> ${l}</button>`
+    ).join('');
+
+    const qBtns = a.quick.map(([l,t]) =>
+      `<button class="qb" onclick="qs('${r}','${t.replace(/'/g,"\\'")}')"> ${l}</button>`
+    ).join('');
 
     ws.innerHTML = `
       <div class="pbar">
         <div class="pav">${a.icon}</div>
-        <div><div class="pname">${a.name} — ${a.title}</div><div class="psub">${a.sub}</div></div>
-        <button class="ebtn" onclick="tep('${r}')">📧 Email</button>
-        <div class="sdot"></div>
+        <div class="pinfo">
+          <div class="pname">${a.name} — ${a.title}</div>
+          <div class="psub">${a.sub}</div>
+        </div>
+        <div class="pacts">
+          <button class="pbtn" onclick="tep('${r}')">📧 Email</button>
+          <button class="pbtn" onclick="clearChat('${r}')">🗑 Clear</button>
+        </div>
+        <div class="sdot" id="sdot-${r}"></div>
       </div>
       <div class="epanel" id="ep-${r}">
         <div class="ept">📧 ${a.name}'s inbox actions</div>
-        <div class="epacts">${a.emails.map(([l,t])=>`<button class="ea" onclick="ea('${r}','${t.replace(/'/g,"\\'")}')"> ${l}</button>`).join('')}</div>
+        <div class="epacts">${emailBtns}</div>
       </div>
       <div class="chat" id="chat-${r}">
         <div class="msg ai">
           <div class="mav">${a.av}</div>
-          <div><div class="mbub">${a.intro}</div><div class="mtime">${gt()}</div></div>
+          <div class="mbody">
+            <div class="mbub">${a.intro}</div>
+            <div class="mmeta"><span class="mtime">${gt()}</span></div>
+          </div>
         </div>
       </div>
-      <div class="qps ${r}">
-        <div class="ql">Quick prompts</div>
-        ${a.quick.map(([l,t])=>`<button class="qb" onclick="qs('${r}','${t.replace(/'/g,"\\'")}')"> ${l}</button>`).join('')}
+      <div class="qps">
+        <div class="ql">Quick prompts</div>${qBtns}
       </div>
       <div class="ibar ${r}">
         <textarea id="in-${r}" placeholder="Ask ${a.name}…" rows="1"
@@ -453,91 +802,186 @@ function buildWorkspaces(roles) {
   });
 }
 
-// ── TAB SWITCHING ──
+// ═══════════════════════════════════════════════════════════
+// TAB SWITCHING
+// ═══════════════════════════════════════════════════════════
 function switchTab(r) {
-  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
-  document.querySelectorAll('.ws').forEach(w=>w.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.ws').forEach(w => w.classList.remove('active'));
   const tab = document.querySelector(`.tab[data-r="${r}"]`);
+  const ws  = document.getElementById(`ws-${r}`);
   if (tab) tab.classList.add('active');
-  const ws = document.getElementById(`ws-${r}`);
-  if (ws) ws.classList.add('active');
-  document.querySelectorAll('.epanel').forEach(p=>p.classList.remove('open'));
+  if (ws)  ws.classList.add('active');
+  document.querySelectorAll('.epanel').forEach(p => p.classList.remove('open'));
 }
 
-function tep(r){ document.getElementById(`ep-${r}`).classList.toggle('open'); }
-function ea(r,t){ document.getElementById(`ep-${r}`).classList.remove('open'); document.getElementById(`in-${r}`).value=t; send(r); }
-function ar(el){ el.style.height='auto'; el.style.height=Math.min(el.scrollHeight,100)+'px'; }
-function hk(e,r){ if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send(r);} }
-function qs(r,t){ document.getElementById(`in-${r}`).value=t; send(r); }
-function gt(){ return new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}); }
+// ═══════════════════════════════════════════════════════════
+// UI HELPERS
+// ═══════════════════════════════════════════════════════════
+function tep(r) { document.getElementById(`ep-${r}`).classList.toggle('open'); }
+function ea(r, t) { document.getElementById(`ep-${r}`).classList.remove('open'); qs(r, t); }
+function qs(r, t) { document.getElementById(`in-${r}`).value = t; send(r); }
+function ar(el) { el.style.height = 'auto'; el.style.height = Math.min(el.scrollHeight, 120) + 'px'; }
+function hk(e, r) { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(r); } }
+function gt() { return new Date().toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' }); }
 
-function fmt(t){
-  return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
-    .replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>')
-    .replace(/\*(.*?)\*/g,'<em>$1</em>')
-    .replace(/`(.*?)`/g,'<code style="background:#f0ede8;padding:1px 4px;border-radius:3px;font-family:DM Mono,monospace;font-size:11px">$1</code>')
-    .replace(/\n/g,'<br>');
+function clearChat(r) {
+  histories[r] = [];
+  const chat = document.getElementById(`chat-${r}`);
+  const intro = chat.querySelector('.msg.ai');
+  chat.innerHTML = '';
+  if (intro) chat.appendChild(intro);
 }
 
-function addMsg(r,cls,html,av){
-  const c=document.getElementById(`chat-${r}`);
-  const d=document.createElement('div'); d.className=`msg ${cls}`;
-  d.innerHTML=`<div class="mav">${av}</div><div><div class="mbub">${html}</div><div class="mtime">${gt()}</div></div>`;
-  c.appendChild(d); c.scrollTop=c.scrollHeight;
+// Copy text to clipboard
+function copyText(text) {
+  navigator.clipboard.writeText(text).then(() => {
+    showToast('Copied to clipboard', 'success', 2000);
+  }).catch(() => {
+    showToast('Could not copy — please select and copy manually', 'warning');
+  });
 }
 
-function showTyping(r){
-  const a=AGENTS[r];
-  const c=document.getElementById(`chat-${r}`);
-  const d=document.createElement('div'); d.className='msg ai'; d.id=`ty-${r}`;
-  d.innerHTML=`<div class="mav">${a.av}</div><div><div class="mbub"><div class="typing"><span></span><span></span><span></span></div></div></div>`;
-  c.appendChild(d); c.scrollTop=c.scrollHeight;
-}
-function rmT(r){ const e=document.getElementById(`ty-${r}`); if(e)e.remove(); }
+// ═══════════════════════════════════════════════════════════
+// ADD MESSAGE
+// ═══════════════════════════════════════════════════════════
+function addMsg(r, cls, html, av, rawText) {
+  const c = document.getElementById(`chat-${r}`);
+  const d = document.createElement('div');
+  d.className = `msg ${cls}`;
 
-// ── SEND MESSAGE ──
-async function send(r){
+  let copyBtn = '';
+  if (cls.includes('ai') && rawText) {
+    const escaped = rawText.replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/\n/g,'\\n');
+    copyBtn = `<button class="copy-btn" onclick="copyText('${escaped}')" title="Copy">📋</button>`;
+  }
+
+  d.innerHTML = `
+    <div class="mav">${av}</div>
+    <div class="mbody">
+      <div class="mbub">${html}</div>
+      <div class="mmeta">
+        <span class="mtime">${gt()}</span>
+        ${copyBtn}
+      </div>
+    </div>`;
+  c.appendChild(d);
+  c.scrollTop = c.scrollHeight;
+}
+
+function addErrMsg(r, msg) {
+  const c = document.getElementById(`chat-${r}`);
+  const d = document.createElement('div');
+  d.className = 'msg ai err-bubble';
+  d.innerHTML = `
+    <div class="mav">!</div>
+    <div class="mbody">
+      <div class="mbub">⚠️ ${escHtml(msg)}</div>
+      <div class="mmeta"><span class="mtime">${gt()}</span></div>
+    </div>`;
+  c.appendChild(d);
+  c.scrollTop = c.scrollHeight;
+}
+
+function showTyping(r) {
+  const c = document.getElementById(`chat-${r}`);
+  const d = document.createElement('div');
+  d.className = 'msg ai'; d.id = `ty-${r}`;
+  d.innerHTML = `
+    <div class="mav">${AGENTS[r].av}</div>
+    <div class="mbody">
+      <div class="mbub"><div class="typing-wrap"><span></span><span></span><span></span></div></div>
+    </div>`;
+  c.appendChild(d); c.scrollTop = c.scrollHeight;
+}
+
+function rmTyping(r) { const e = document.getElementById(`ty-${r}`); if (e) e.remove(); }
+
+function setBusy(r, busy) {
+  const dot = document.getElementById(`sdot-${r}`);
+  const btn = document.getElementById(`sb-${r}`);
+  if (dot) dot.classList.toggle('busy', busy);
+  if (btn) btn.disabled = busy;
+}
+
+// ═══════════════════════════════════════════════════════════
+// SEND MESSAGE  ← CORE FIX: never logout on Anthropic errors
+// ═══════════════════════════════════════════════════════════
+async function send(r) {
+  // If no token at all, redirect to login
   if (!token) { doLogout(); return; }
-  const inp=document.getElementById(`in-${r}`);
-  const btn=document.getElementById(`sb-${r}`);
-  const txt=inp.value.trim(); if(!txt)return;
-  inp.value=''; inp.style.height='auto'; btn.disabled=true;
 
-  addMsg(r,'u',fmt(txt),'You');
-  histories[r].push({role:'user',content:txt});
+  const inp = document.getElementById(`in-${r}`);
+  const txt = inp.value.trim();
+  if (!txt) return;
+
+  inp.value = ''; inp.style.height = 'auto';
+  setBusy(r, true);
+
+  addMsg(r, 'u', renderMarkdown(txt), 'You', null);
+  histories[r].push({ role:'user', content: txt });
   showTyping(r);
 
   try {
     const res = await fetch('/api/agent/chat', {
-      method:'POST',
-      headers:{
-        'Content-Type':'application/json',
-        'Authorization':`Bearer ${token}`
+      method:  'POST',
+      headers: {
+        'Content-Type':  'application/json',
+        'Authorization': `Bearer ${token}`
       },
-      body: JSON.stringify({ role:r, messages:histories[r] })
+      body: JSON.stringify({ role: r, messages: histories[r] })
     });
-    if (res.status === 401) { doLogout(); return; }
+
+    // ── 401 handling: ONLY logout on real JWT failures ──────────────────
+    // Do NOT logout if Anthropic API key is wrong — that error is now
+    // mapped to 503 on the server, so this 401 is genuinely a JWT issue.
+    if (res.status === 401) {
+      rmTyping(r); setBusy(r, false);
+      showToast('Your session has expired. Please sign in again.', 'error');
+      doLogout();
+      return;
+    }
+
     const data = await res.json();
-    const reply = data.reply || data.error || 'Something went wrong. Please try again.';
-    rmT(r);
-    histories[r].push({role:'assistant',content:reply});
-    addMsg(r,'ai',fmt(reply),AGENTS[r].av);
-  } catch(e) {
-    rmT(r);
-    addMsg(r,'ai','⚠️ Connection issue. Please check your network.',AGENTS[r].av);
+
+    if (!res.ok) {
+      const errMsg = data.error || 'Something went wrong. Please try again.';
+      rmTyping(r); setBusy(r, false);
+      addErrMsg(r, errMsg);
+      // Show extra toast for actionable errors
+      if (res.status === 503 || res.status === 502) {
+        showToast(errMsg, 'warning', 7000);
+      }
+      return;
+    }
+
+    // ── Success ──────────────────────────────────────────────────────────
+    rmTyping(r);
+    setBusy(r, false);
+    const reply = data.reply || 'I had trouble generating a response. Please try again.';
+    histories[r].push({ role:'assistant', content: reply });
+    addMsg(r, 'ai', renderMarkdown(reply), AGENTS[r].av, reply);
+
+  } catch (err) {
+    rmTyping(r); setBusy(r, false);
+    addErrMsg(r, 'Network error. Please check your connection and try again.');
+    showToast('Connection failed. Check your internet.', 'error');
   }
-  btn.disabled=false; inp.focus();
+
+  inp.focus();
 }
 
-// ── PWA INSTALL ──
-function installApp(){
+// ═══════════════════════════════════════════════════════════
+// PWA INSTALL
+// ═══════════════════════════════════════════════════════════
+function installApp() {
   if (!deferredInstall) return;
   deferredInstall.prompt();
-  deferredInstall.userChoice.then(()=>{ deferredInstall=null; dismissInstall(); });
+  deferredInstall.userChoice.then(() => { deferredInstall = null; dismissInstall(); });
 }
-function dismissInstall(){
+function dismissInstall() {
   document.getElementById('install-banner').classList.remove('show');
-  localStorage.setItem('install_dismissed','1');
+  localStorage.setItem('install_dismissed', '1');
 }
 </script>
 </body>
